@@ -49,3 +49,28 @@ A =
 >> A = [1,2,3];
 >> 
 ```
+
+```octave
+% Condicionais
+% Os delimitadores no octave dos laços são os próprios operadores
+% Ao invés de termos:
+% if(condicao){ //entre delimitadores }
+
+% temos
+if(A == B) % condicao <- {A == B}
+% delimitado pelos operadores
+end
+% O mesmo vale para os laços!
+for % a forma de fazer laços será vista a seguir
+% codigo
+end
+```
+
+```octave
+% Laços!!
+for k=1:size()
+% o loop for, está utilizando como variável de iteração k
+% se a sintaxe for com é na linguagem c
+% está fazendo k=1 e passar por todos os valores que estão dentro do retorno dessa função size.
+end
+```

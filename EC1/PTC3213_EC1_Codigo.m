@@ -1,52 +1,46 @@
-%%%% ///////////////////////////////////////////////////////////////////////////
-%%%%        PTC3213 - EC1 - 2024 - DIFERENÇAS FINITAS
-%%%%
-%%%%    14582927 João Victor Cavalcante Miranda
-%%%%    NUSP2 Aluno B
-%%%%    NUSP3 Aluno C
-%%%%                           Complete os campos com [Preencher Aqui]??
-%%%%
-%%%%  /////////////////////////////////////////////////////////////////////////
+% ///////////////////////////////////////////////////////////////////////////
+%			PTC3213 - EC1 - 2024 - DIFERENÇAS FINITAS
+
+%    #NUSP2 Arthur
+%    #14582927 João Victor Cavalcante Miranda
+%    #NUSP3 Aluno C
+%			Complete os campos com [Preencher Aqui]
+%
+%  /////////////////////////////////////////////////////////////////////////
 clear;
 clf;
-%%%
-%%%  A linha 15 (pkg install...) deve ser executada uma unica vez no 
-%%% GNU Octave e necessita de conexao aa internet. Pode tambem ser executada fora do programa.
-%%%
 warning ("off");
-pkg install -local -forge  matgeom; %% descomentar para rodar a 1a vez, somente
-pkg load matgeom; % executar este comando apenas 1 vez, após abrir o Octave
+pkg install -local -forge  matgeom; 
+pkg load matgeom;
 warning ("on");
 clc;
-%%%  ======================================================================
-%%%   Dados de entrada
-%%%
+
+%   Dados de entrada
+
 NUSP = [Preencher Aqui]  ; % NUSP do 1o aluno (ordem alfab.)
 %
-a= [Preencher Aqui]???   ; # dimensões em cm
-b=  [Preencher Aqui]??   ;
-c=   [Preencher Aqui]??   ;
-d=   [Preencher Aqui]??   ;
-g=   [Preencher Aqui]??   ;
+a=   [Preencher Aqui]  ; 
+b=   [Preencher Aqui]  ;
+c=   [Preencher Aqui]  ;
+d=   [Preencher Aqui]  ;
+g=   [Preencher Aqui]  ;
+
 h=(b-d)/2;
-epsr=   [Preencher Aqui]??   ;
-sigma=    [Preencher Aqui]??   ;  # S/m
-sigma_dual=   [Preencher Aqui]??   ; # S/m
+
+epsr=   [Preencher Aqui]??   ; % adimensional
+sigma=    [Preencher Aqui]??   ;  % S/m
+sigma_dual=   [Preencher Aqui]??   ; % S/m
 eps0=   [Preencher Aqui][Preencher Aqui]???????????  ;  % F/m
 Vmin=  [Preencher Aqui][Preencher Aqui]???????? ;     % Volts
 Vmax=   [Preencher Aqui][Preencher Aqui]???????? ;   % Volts
-%%%
-%%%  ======================================================================
-%%%
-%%%            Definicao do dominio
-%%%% 
-%%%% A variavel dx abaixo e' a discretizacao utilizada. Valores diferentes 
-%%%% daqueles sugeridos abaixo nao funcionarao. Diminua o dx para gerar a 
-%%%% versao final a ser entregue. 
-%dx=0.05; % Tempo de execucao MUITO longo!!
-%dx=0.1;   % Tempo de execucao longo!!
-%dx=0.25;  % recomendado para a versao final
-dx=0.5;   %% Mude para dx=0.25 somente quando for gerar os resultados finais!!!
+
+%            Definicao do dominio
+% A variavel dx abaixo é a discretizacao utilizada. Valores diferentes
+% daqueles sugeridos abaixo nao funcionarao. Diminua o dx para gerar a 
+%versao final a ser entregue. Ou seja, aumentar a resolução da simulação
+
+
+dx=0.5;   %% Sugestão do Prof: Mude para dx=0.25 somente quando for gerar os resultados finais!!!
 erro=0.0;
 start=start_Dual= 50;
 iter=0;
@@ -70,12 +64,15 @@ xv2=verts2(:,1);
 yv2=verts2(:,2);
 [in1,on1] = inpolygon(x,y,xv1,yv1);
 [in2,on2] = inpolygon(x,y,xv2,yv2);
-%%%
-%%%    Atribui Condicoes de contorno
-%%%
+
+% Atribui Condicoes de contorno
+
 r=find(in1&~in2|on2); % tudo
+
 p=find(in1&~on1&~in2); %so  nos internos
+
 q=find(on1|on2); %so fronteira
+
 iVmax=find(on2);
 iFuro=find(in2&!on2);
 Phi_prev=zeros(size(x));
@@ -83,38 +80,45 @@ Phi_new=zeros(size(x));
 Phi_new(iVmax)= Vmax;
 Phi_new(iFuro)= NaN;
 Phi_new(p)= start;
-%%% ========================================================================
-%%%
-%%% Contador de iteracoes
+
+% Contador de iteracoes
 iter=0;
-%%% Erro maximo entre Phi_new e Phi_prev
+
+% Erro maximo entre Phi_new e Phi_prev
 erro=max(max(abs(Phi_new-Phi_prev)));
-%%%  
-%%%             Laco iterativo - Metodo das Diferencas Finitas
-%%%
+ 
+%            Laco iterativo - Metodo das Diferencas Finitas
+
 while(erro > 1e-4 && iter < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes
     iter=iter+1; % Incrementa iteracao
-%%%   Atualiza o potencial dos nos internos pela media dos 4 vizinhos - Eq. Laplace - M.D.F.
+
+%	Atualiza o potencial dos nos internos pela media dos 4 vizinhos - Eq. Laplace - M.D.F.
+%	Funciona especialmente bem para a Eq. de laplace, pois a ideia que é consequência dessa é
+%	O cálculo do laplaciano
+%	Que é o somatório da segunda derivada do potencial em cada dimensão
+%	E segundas derivadas tem tudo a ver com médias(segundo o Richard P. Feynman)
     for k=1:size(p,1);
         [i,j]=ind2sub(size(x),p(k));
             Phi_new(i,j)=(Phi_new(i-1,j)+Phi_new(i+1,j)+Phi_new(i,j-1)+Phi_new(i,j+1))/4;
     end
-%%%% Calcula maximo erro entre Phi_atual e Phi_prev de todo o dominio
+% Calcula maximo erro entre Phi_atual e Phi_prev de todo o dominio
+% Fazemos novamente pois:...
     erro=max(max(abs(Phi_new-Phi_prev)));
     eps(iter)=erro;
-%%%%    Atualiza a matriz de potenciais
-    Phi_prev=Phi_new;
 
+%    Atualiza a matriz de potenciais
+    Phi_prev=Phi_new;
 end
+
 niter1=iter;
+
 if (niter1 == 1e4 && erro > 1e-4)
 	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter1), '  iteracoes \? Erro: \n', num2str(erro), 'Os resultados podem nao ter significado!\n']);
 end
-%%%
-%%%
-%%% Problema Dual (Somente para tracado dos Quadrados Curvilineos!)
-%%%
-%%% Atribui Condicoes de Contorno
+
+% Problema Dual (Somente para tracado dos Quadrados Curvilineos!)
+% Atribui Condicoes de Contorno
+
 iyDual=find( (y(:,:) < ly/1.999) & (y(:,:) > ly/2.001) );
 iVmaxdual=find( (x(iyDual) > (-0.01)) & (x(iyDual) < (1.0001*g)));
 i0=find( (x(iyDual)> (0.9999*(g+c))) & (x(iyDual)< (1.0001*lx)) );
@@ -144,16 +148,20 @@ Dual_new(r)= start_Dual;
 Dual_new(iFuro)= NaN;
 Dual_new(iyDual(iVmaxdual))=Vmax;
 Dual_new(iyDual(i0))=Vmin;
-%%% Contador de iteracoes - dual
+
+% Contador de iteracoes - dual
 iter2=0;
-%%% Erro maximo entre Phi_new e Phi_prev (Dual)
+
+% Erro maximo entre Phi_new e Phi_prev (Dual)
 erro2=max(max(abs(Dual_new-Dual_prev)));
-%
-%%%       Laco iterativo (Problema Dual) - MDF
-%
-while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes    
+
+%       Laco iterativo (Problema Dual) - MDF(Não é a placa de madeira, pode significar Método das Diferenças Finitas)
+
+while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes
     iter2=iter2+1; % Incrementa iteracao
-%%%   Atualiza o potencial das fronteiras
+%	Atualiza o potencial das fronteiras
+%	Da mesma forma que foi feito com a matrix de potenciais ?
+
     Dual_new(1,:)=Dual_prev(2,:);
     Dual_new(Ny,:)=Dual_prev(Ny-1,:);
     Dual_new(:,1)=Dual_prev(:,2);
@@ -164,7 +172,7 @@ while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de
     end
     for k=2:size(xfd,1)-1
         [id,jd]=ind2sub(size(Dual_new), iVmax(xfd(k)));
-        Dual_new(id,jd)=Dual_new(id,jd+1);
+        Dual_new(id,jd)=Dual_new(id,jd+1)
     end
     for k=2:size(yfb,1)-1
         [ib,jb]=ind2sub(size(Dual_new), iVmax(yfb(k)));
@@ -176,102 +184,90 @@ while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de
     end
     Dual_new(iyDual(iVmaxdual))=Vmax;
     Dual_new(iyDual(i0))=Vmin;
-%%%%     
-%%%% Atualiza o potencial dos nos internos pela media dos 4 vizinhos - Eq. Laplace - M.D.F.
-    for k=1:size(p2,1); 
+
+% Atualiza o potencial dos nos internos pela media dos 4 vizinhos - Eq. Laplace - M.D.F.
+
+    for k=1:size(p2,1);
         [i,j]=ind2sub(size(x),p(p2(k)));
         Dual_new(i,j)=(Dual_new(i-1,j)+Dual_new(i+1,j)+Dual_new(i,j-1)+Dual_new(i,j+1))/4;
     end
-%%% Cantos
+
+% Cantos não-gregorianos
+
     Dual_new(ieb,jeb)=(Dual_new(ieb-1,jeb)+Dual_new(ieb+1,jeb)+Dual_new(ieb,jeb-1)+Dual_new(ieb,jeb+1))/4;
     Dual_new(iea,jea)=(Dual_new(iea-1,jea)+Dual_new(iea+1,jea)+Dual_new(iea,jea-1)+Dual_new(iea,jea+1))/4;
     Dual_new(idb,jdb)=(Dual_new(idb-1,jdb)+Dual_new(idb+1,jdb)+Dual_new(idb,jdb-1)+Dual_new(idb,jdb+1))/4;
     Dual_new(ida,jda)=(Dual_new(ida-1,jda)+Dual_new(ida+1,jda)+Dual_new(ida,jda-1)+Dual_new(ida,jda+1))/4;
-%%% Calcula maximo erro entre Phi_atual e Phi_prev de todo o dominio
+
+% Calcula mximo erro entre Phi_atual e Phi_prev de todo o dominio
     erro2=max(max(abs(Dual_new-Dual_prev)));
     eps2(iter2)=erro2;
-%%% Atualiza a matriz de potenciais
+% Atualiza a matriz de potenciais
     Dual_prev=Dual_new;
-%%%
 end
 niter2=iter2;
 if (niter2 == 1e4 && erro2 > 1e-3)
 	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter2), '  iteracoes \? Erro: \n', num2str(erro2), 'Interprete este resultado com ressalvas!\n']);
 end
-%%%==========================================================================
-%%%
-%%%               DADOS DE SAIDA
-%%%
-%%%==========================================================================
-%%%
-%%%      CORRENTE TOTAL (A)
-%%
+
+% Dados de Saída
+
+
+%      CORRENTE TOTAL (A)
 Somat=sum(Phi_new(2,:))+sum(Phi_new(Ny-1,:))+sum(Phi_new(:,2))+sum(Phi_new(:,Nx-1));
 I=  [Preencher Aqui][Preencher Aqui]???  ;
-%%%
-%%%       RESISTENCIA em ohms
-%%%
+
+%       RESISTENCIA em ohms
 R=  [Preencher Aqui]???????     ;
-%%%
-%%%        CAPACITANCIA em pF
-%%%
+
+%        CAPACITANCIA em pF
 Cap=  [Preencher Aqui]????????????????? ;
-%%%
-%%%     RESISTENCIA DUAL em ohms
-%%%
+
+%     RESISTENCIA DUAL em ohms
 Rdual=  [Preencher Aqui]????????????????  ;
-%%%
-%%%    VETOR DESLOCAMENTO
-%%%
+
+%    VETOR DESLOCAMENTO
 Dn=[Phi_new(2,1:Nx-1),Phi_new(1:Ny-1,Nx-1)',Phi_new(Ny-1,1:Nx-1),Phi_new(1:Ny-1,2)']*epsr*eps0/dx*100;
-%%
-%%   Densidade de carga mínima em nC/m^2
-%%
+
+%   Densidade de carga mínima em nC/m^2
 Rho_s_min=  [Preencher Aqui]???????????????  ;
-%%
-%%  Numero de tubos de corrente
-%%
+
+%  Numero de tubos de corrente
 nsnp=    [Preencher Aqui][Preencher Aqui]???   ;
-ntubos=10/nsnp;  %% CORRIGIDO
-%%%%==========================================================================
-%%%%              IMPRESSAO DE RESULTADOS NO TERMINAL 
-%%%%                  ATENCAO para as unidades:
-%%%%          R e Rdual em ohms     Cap em pF    Rho_s  em nC/m^2
-%%%%
-%%%%
+% Correção
+ntubos=10/nsnp;
+
+%              IMPRESSAO DE RESULTADOS NO TERMINAL 
+%                  ATENCAO para as unidades:
+%          R e Rdual em ohms     Cap em pF    Rho_s  em nC/m^2
 fprintf('\n\n nUSP: %d\n R = %g ohms\n C = %g pF\n Rho_s_min = %g nC/m^2\n Rdual = %g ohms\n Tubos: %g\n', NUSP, R, Cap, Rho_s_min,Rdual,floor(ntubos) );
-%%%
-%%%
 FIG=figure (1);
-%%
-%%%           TRACADO DE EQUIPOTENCIAIS
-%%%
+
+%           TRACADO DE EQUIPOTENCIAIS
+
 V=0:10:Vmax;
 colormap cool;
 [C,H]=contour(x,y, [Preencher Aqui]?  ,  ??????????????  );
 clabel(C,V);
 axis('equal');
 hold on
-%%%
-%%%   EQUIPOTENCIAIS PROBLEMA DUAL (para tracado dos quadrados curvilineos)
-%%%
-%%%
-%%%
+
+%   EQUIPOTENCIAIS PROBLEMA DUAL (para tracado dos quadrados curvilineos)
+
 deltaV=   [Preencher Aqui]???????????? ;
 V=0:deltaV:Vmax;
 colormap jet;
 contour(x,y, [Preencher Aqui]????????????   ,  [Preencher Aqui]? );
 axis('equal');
 strusp=sprintf('%d',NUSP);
-titulo=['Mapa de Quadrados Curvilineos (EC1 2021) - ', strusp, ' - ', date()];
+titulo=['Mapa de Quadrados Curvilineos (EC1 2024) - ', strusp, ' - ', date()];
 title(titulo);
 hold off
-%%%
-%%%      ARQUIVO DE SAIDA COM O MAPA DOS QUADRADOS CURVILINEOS 
-%%%(Grava na pasta exibida no Navegador de Arq. da interface gráfica do Octave)
-%%%
-arq=['EC1_2021_QC_',strusp,'.png'];  
+
+%      ARQUIVO DE SAIDA COM O MAPA DOS QUADRADOS CURVILINEOS
+%(Grava na pasta exibida no Navegador de Arq. da interface gráfica do Octave)
+
+arq=['EC1_2024_QC_',strusp,'.png'];
 print(FIG,arq);
-%%%%   ========================================================================
-%%%%  FIM
-%%%%
+
+%% Foi divertido! A partir de dois "%" o meu interpretador de linguagem faz um outro tipo de highlight, por isso removi todos para o que parecia mais simples para mim. Obrigado pelo código, foi um desafio proveitoso
