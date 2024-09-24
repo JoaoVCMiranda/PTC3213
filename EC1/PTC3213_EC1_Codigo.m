@@ -1,9 +1,9 @@
 % ///////////////////////////////////////////////////////////////////////////
 %			PTC3213 - EC1 - 2024 - DIFERENÇAS FINITAS
 
-%    #NUSP2 Arthur
+%    #14754306 Arthur Soresini Bedin
 %    #14582927 João Victor Cavalcante Miranda
-%    #NUSP3 Aluno C
+%    #NUSP3 Marcos Gabriel
 %			Complete os campos com [Preencher Aqui]
 %
 %  /////////////////////////////////////////////////////////////////////////
@@ -17,22 +17,24 @@ clc;
 
 %   Dados de entrada
 
-NUSP = [Preencher Aqui]  ; % NUSP do 1o aluno (ordem alfab.)
-%
-a=   [Preencher Aqui]  ; 
-b=   [Preencher Aqui]  ;
-c=   [Preencher Aqui]  ;
-d=   [Preencher Aqui]  ;
-g=   [Preencher Aqui]  ;
+NUSP = 14654306 ; % NUSP do 1o aluno (ordem alfab.)
+
+a=   11; 
+b=   5 ;
+c=   4 ;
+d=   b-3; % 2
+g=   3 ;
 
 h=(b-d)/2;
 
-epsr=   [Preencher Aqui]??   ; % adimensional
-sigma=    [Preencher Aqui]??   ;  % S/m
-sigma_dual=   [Preencher Aqui]??   ; % S/m
-eps0=   [Preencher Aqui][Preencher Aqui]???????????  ;  % F/m
-Vmin=  [Preencher Aqui][Preencher Aqui]???????? ;     % Volts
-Vmax=   [Preencher Aqui][Preencher Aqui]???????? ;   % Volts
+epsr=   2.5   ; % adimensional
+sigma=    2.5   ;  % S/m
+sigma_dual=   3.5   ; % S/m
+
+
+eps0=   [Preencher Aqui] ;  % F/m
+Vmin=  [Preencher Aqui] ;     % Volts
+Vmax=   [Preencher Aqui] ;   % Volts
 
 %            Definicao do dominio
 % A variavel dx abaixo é a discretizacao utilizada. Valores diferentes
