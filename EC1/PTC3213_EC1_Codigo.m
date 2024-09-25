@@ -32,15 +32,17 @@ sigma=    2.5   ;  % S/m
 sigma_dual=   3.5   ; % S/m
 
 
-eps0=   [Preencher Aqui] ;  % F/m
-Vmin=  [Preencher Aqui] ;     % Volts
-Vmax=   [Preencher Aqui] ;   % Volts
+eps0=  8.85418717*10^(-12) ;  % F/m
+
+Vmin=  0 ;     % Volts, de acordo com o enunciando.pdf
+Vmax=  100 ;   % Volts, idem
 
 %            Definicao do dominio
 % A variavel dx abaixo é a discretizacao utilizada. Valores diferentes
 % daqueles sugeridos abaixo nao funcionarao. Diminua o dx para gerar a 
 %versao final a ser entregue. Ou seja, aumentar a resolução da simulação
 
+% Definições para o cálculo usando o MDF
 
 dx=0.5;   %% Sugestão do Prof: Mude para dx=0.25 somente quando for gerar os resultados finais!!!
 erro=0.0;
@@ -49,8 +51,10 @@ iter=0;
 dy=dx;
 lx=a;
 ly=b;
+% discretizar os valores
 Nx=round(lx/dx)+1;
 Ny=round(ly/dx)+1;
+% Geometria do problema
 ring1= [0 0; lx 0; lx ly; 0 ly; 0 0];
 ring2=[g h; g h+d; g+c h+d; g+c h; g h];
 polyg={ring1,ring2};
@@ -212,7 +216,7 @@ if (niter2 == 1e4 && erro2 > 1e-3)
 	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter2), '  iteracoes \? Erro: \n', num2str(erro2), 'Interprete este resultado com ressalvas!\n']);
 end
 
-% Dados de Saída
+% Dados de Saída - São coisas que eu irei calcular
 
 
 %      CORRENTE TOTAL (A)
