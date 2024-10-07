@@ -51,19 +51,34 @@ iter=0;
 dy=dx;
 lx=a;
 ly=b;
-% discretizar os valores
+% "Resolução" da tela, quantidade de quadradinhos que devemos ter em cada dimensão
 Nx=round(lx/dx)+1;
-Ny=round(ly/dx)+1;
+Ny=round(ly/dy)+1; 
 % Geometria do problema
+
+% São retangulos, mas tem 5 pontos pois o último é igual ao primeiro para fechar o anel
+% Os aneis vão em direções contrárias
+% Os aneis são os "vertices dos retângulos um dentro do outro"
 ring1= [0 0; lx 0; lx ly; 0 ly; 0 0];
 ring2=[g h; g h+d; g+c h+d; g+c h; g h];
+% array de arrays
 polyg={ring1,ring2};
+% É a união dos dois poligonos
+% simplesmente as duas arrays ring1 e ring2 concatenadas
 verts = polygonVertices(polyg);
+% sintaxe para fazer uma grid
 xgv=((1:Nx)-1)*dx;
+% faz uma sequência de 0 até Nx-1 e multiplica por dx, para assim ter todos os pontos em x até
 ygv=((1:Ny)-1)*dx;
+% tipo um produto cartesiano
 [x,y]=meshgrid(xgv,ygv);
+% O x tem todos os valores de x para cada ponto no conjunto xgv cartesiano ygv
+
+% aparentemente essas linhas são redundantes, pois ring1 e verts1 contém exatamente a mesma informação, talvez pudéssemos chamar ringN de vertsN sem maiores problemas
 verts1 = polygonVertices(ring1);
 verts2 = polygonVertices(ring2);
+
+
 xv1=verts1(:,1);
 yv1=verts1(:,2);
 xv2=verts2(:,1);
@@ -205,7 +220,7 @@ while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de
     Dual_new(idb,jdb)=(Dual_new(idb-1,jdb)+Dual_new(idb+1,jdb)+Dual_new(idb,jdb-1)+Dual_new(idb,jdb+1))/4;
     Dual_new(ida,jda)=(Dual_new(ida-1,jda)+Dual_new(ida+1,jda)+Dual_new(ida,jda-1)+Dual_new(ida,jda+1))/4;
 
-% Calcula mximo erro entre Phi_atual e Phi_prev de todo o dominio
+% Calcula maximo erro entre Phi_atual e Phi_prev de todo o dominio
     erro2=max(max(abs(Dual_new-Dual_prev)));
     eps2(iter2)=erro2;
 % Atualiza a matriz de potenciais

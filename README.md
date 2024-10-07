@@ -74,3 +74,50 @@ for k=1:size()
 % está fazendo k=1 e passar por todos os valores que estão dentro do retorno dessa função size.
 end
 ```
+
+
+```octave
+% Para fazer uma lista em octave é simples!
+
+1:x % faz uma lista que começa em 1 e vai até x
+
+1:x - 1 % faz uma lista que começa em 1 e vai até x - 1 
+(1:x) -1 % faz uma lista que vai de 0 até x-1, ou seja remove 1 de cada item da lista
+```
+
+```octave
+% é uma função um pouco estranha...
+% primeiro, se você executar ela com duas arrays quaisquer X e Y
+% ela repete a array X, y vezes
+meshgrid(X, Y);
+% Porém se você chamar assim
+[a,b] = meshgrid(X,Y)
+% a variável "a" recebe X, y vezes
+% e a variável "b" recebe Y, x vezes, mas na vertical
+% exemplo:
+[u,v] = meshgrid((1:2), (1:3))
+%u =
+%   1   2
+%   1   2
+%   1   2
+%v =
+%   1   1
+%   2   2
+%   3   3
+% curioso não?
+```
+
+```octave
+% o octave tem outra coisa interessante
+% * as arrays são indexadas no 1. e não no 0 como é de costume
+% se fizermos a seguinte array2d/matriz
+u = [0 0;1 0;1 1;0 1;0 0];
+% para acessar os seus items dessa forma
+u(X)
+% vou fazer uma função explicativa, u(x) = x
+u = [1 6;2 7;3 8;4 9;5 10]
+% agora se você quiser acessar a array com dois parâmetros
+u(y,x)
+% farei outra função explicativa tal que u(y,x) = "xy" x concatenado com y
+u = [1 2;1 2;1 2;1 2;1 2]
+```
