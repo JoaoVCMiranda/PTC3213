@@ -46,7 +46,7 @@ Vmax=  100 ;   % Volts, idem
 
 dx=0.5;   %% Sugestão do Prof: Mude para dx=0.25 somente quando for gerar os resultados finais!!!
 erro=0.0;
-start=start_Dual= 50;
+start=start_Dual= (Vmin + Vmax)/2; % um bom palpite é sempre a média, a partir daí melhoraremos iterativamente.
 iter=0;
 dy=dx;
 lx=a;
@@ -83,32 +83,53 @@ xv1=verts1(:,1);
 yv1=verts1(:,2);
 xv2=verts2(:,1);
 yv2=verts2(:,2);
+% Essa função gera dois valores, in1 e on1, que são arrays booleanas que seguem o seguinte padrão:
+% in1 é 1 para todos os valores do espaço (x,y) dado que estiver dentro do poligono de vertices xv1 e yv1, e 0 caso contrário. Como uma área hachurada
+% on1 é a borda do polígono. Como um perímetro.
 [in1,on1] = inpolygon(x,y,xv1,yv1);
+
 [in2,on2] = inpolygon(x,y,xv2,yv2);
 
 % Atribui Condicoes de contorno
 
 r=find(in1&~in2|on2); % tudo
 
-p=find(in1&~on1&~in2); %so  nos internos
+p=find(in1&~on1&~in2); %so  nos internos = tudo que está na placa e não está na borda de fora, mas pega a borda de dentro
 
-q=find(on1|on2); %so fronteira
+q=find(on1|on2); %so fronteira = só os dois perimetros, um retangulo dentro do outro
 
 iVmax=find(on2);
-iFuro=find(in2&!on2);
+
+% Dica do prof: pode ser usado ! no lugar de ~ como uma extensão do octave.
+iFuro=find(in2&~on2);
+
+% inicialização da função potencial
 Phi_prev=zeros(size(x));
 Phi_new=zeros(size(x));
+
+
+% a borda exterior, definimos que Vmax=100, e isso não será mais alterado
 Phi_new(iVmax)= Vmax;
 Phi_new(iFuro)= NaN;
+
+% Um jeito interessantíssimo de definir os valores dentro de uma variável...
+% da mesma forma que é feito para contra domínio
+% Para todo ponto no domínio p, atribui-se o valor start à imagem
 Phi_new(p)= start;
 
 % Contador de iteracoes
 iter=0;
 
 % Erro maximo entre Phi_new e Phi_prev
+% Phi_new - Phi_prev é uma subtração de matrizes
+% abs apenas tira o valor absoluto de cada um deles
+% max vai pegar o máximo de cada coluna
+% o segundo max vai pegar o máximo das colunas
+% Ou seja, estamos calculando o máximo erro em qualquer que seja o ponto
 erro=max(max(abs(Phi_new-Phi_prev)));
  
 %            Laco iterativo - Metodo das Diferencas Finitas
+% agora começa a brincadeira
 
 while(erro > 1e-4 && iter < 1e4)% Executa ate convergir ou atingir o maximo de iteracoes
     iter=iter+1; % Incrementa iteracao
@@ -118,13 +139,16 @@ while(erro > 1e-4 && iter < 1e4)% Executa ate convergir ou atingir o maximo de i
 %	O cálculo do laplaciano
 %	Que é o somatório da segunda derivada do potencial em cada dimensão
 %	E segundas derivadas tem tudo a ver com médias(segundo o Richard P. Feynman)
+
+%	Esse laço é apenas passando por todos os elementos em Phi
     for k=1:size(p,1);
         [i,j]=ind2sub(size(x),p(k));
             Phi_new(i,j)=(Phi_new(i-1,j)+Phi_new(i+1,j)+Phi_new(i,j-1)+Phi_new(i,j+1))/4;
     end
 % Calcula maximo erro entre Phi_atual e Phi_prev de todo o dominio
-% Fazemos novamente pois:...
+
     erro=max(max(abs(Phi_new-Phi_prev)));
+    % coloca na conta do eps em quanto que está o erro agora.
     eps(iter)=erro;
 
 %    Atualiza a matriz de potenciais
@@ -136,6 +160,16 @@ niter1=iter;
 if (niter1 == 1e4 && erro > 1e-4)
 	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter1), '  iteracoes \? Erro: \n', num2str(erro), 'Os resultados podem nao ter significado!\n']);
 end
+
+
+
+
+% ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+% até aqui conseguiremos calcular a Resistência e a capacitância.
+
+
+
+
 
 % Problema Dual (Somente para tracado dos Quadrados Curvilineos!)
 % Atribui Condicoes de Contorno
