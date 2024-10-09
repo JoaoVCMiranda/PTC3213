@@ -161,6 +161,29 @@ if (niter1 == 1e4 && erro > 1e-4)
 	disp([' Numero maximo de iteracoes atingido sem convergencia :', num2stg(niter1), '  iteracoes \? Erro: \n', num2str(erro), 'Os resultados podem nao ter significado!\n']);
 end
 
+% Para calcular as derivadas parciais... Tem um jeitinho...
+
+% Define-se as funções dos potenciais...
+campoEx = zeros(size(x));
+campoEy = zeros(size(y));
+
+campoEx(iFuro)= NaN;
+campoEx(on1) = NaN;
+campoEy(iFuro)= NaN;
+campoEy(on1) = NaN;
+
+
+
+% p são as "coordenadas" em uma dimensão de cada ponto válido da tela discretizada...
+
+% para cada elemento em p, começando em 1
+for k=1:size(p,1)
+	% pegar as coordenadas, em uma dela do formado dado por size(x) na coordenada p(k)
+	[i,j] = ind2sub(size(x), p(k));
+	% parece que está trocado, mas é assim mesmo pois é indexado na coluna e depois na linha.
+	campoEx(i,j) = ( (Phi_new(i,j)-Phi_new(i,j+1)) + (Phi_new(i+1,j)-Phi_new(i+1,j+1)) )/(2*dx);
+	campoEy(i,j) = ( (Phi_new(i,j)-Phi_new(i+1,j)) + (Phi_new(i,j+1)-Phi_new(i+1,j+1)) )/(2*dy);
+end
 
 
 

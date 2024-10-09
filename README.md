@@ -121,3 +121,20 @@ u(y,x)
 % farei outra função explicativa tal que u(y,x) = "xy" x concatenado com y
 u = [1 2;1 2;1 2;1 2;1 2]
 ```
+
+## Física
+
+### E agora, como discretizar na prática a eq de laplace?
+
+Veja que já temos a função potencial phi...
+
+Pela definição de derivada temos que
+
+$$
+\frac{\partial \Phi(x,y)}{\partial x} = lim_{h\rightarrow 0} \frac{\Phi (x+h,y) - \Phi (x,y)}{h}
+$$
+Como não podemos colocar esse limite na prática, o mais próximo que temos é o dx, então teremos
+
+a diferença entre dois valores de potencial adjacentes, em relação a x dividido por dx...
+
+
