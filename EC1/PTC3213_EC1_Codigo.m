@@ -3,7 +3,7 @@
 
 %    #14754306 Arthur Soresini Bedin
 %    #14582927 João Victor Cavalcante Miranda
-%    #NUSP3 Marcos Gabriel
+%    #10266322 Marcos Gabriel
 %			Complete os campos com [Preencher Aqui]
 %
 %  /////////////////////////////////////////////////////////////////////////
@@ -16,12 +16,12 @@ clc;
 
 %   Dados de entrada
 
-NUSP = 14654306 ; % NUSP do 1o aluno (ordem alfab.)
+NUSP = 14754306 ; % NUSP do 1o aluno (ordem alfab.)
 
 a=   11; 
 b=   5 ;
 c=   4 ;
-d=   b-3; % 2
+d=   b-4; % 1
 g=   3 ;
 
 h=(b-d)/2;
