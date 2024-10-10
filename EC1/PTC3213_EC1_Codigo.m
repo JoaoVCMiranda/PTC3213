@@ -12,7 +12,6 @@ clf;
 warning ("off");
 pkg install -local -forge  matgeom; 
 pkg load matgeom;
-warning ("on");
 clc;
 
 %   Dados de entrada
@@ -61,6 +60,10 @@ Ny=round(ly/dy)+1;
 % Os aneis são os "vertices dos retângulos um dentro do outro"
 ring1= [0 0; lx 0; lx ly; 0 ly; 0 0];
 ring2=[g h; g h+d; g+c h+d; g+c h; g h];
+
+%novo anel, onde serão realizados os cálculos
+ring3 = [0+1 0+1; lx-1 0+1; lx-1 ly-1; 0+1 ly-1; 0+1 0+1];
+
 % array de arrays
 polyg={ring1,ring2};
 % É a união dos dois poligonos
@@ -83,6 +86,16 @@ xv1=verts1(:,1);
 yv1=verts1(:,2);
 xv2=verts2(:,1);
 yv2=verts2(:,2);
+
+
+% vertices do polígono de calculo
+verts3 = polygonVertices(ring3);
+xv3 = verts3(:,1);
+yv3 = verts3(:,2);
+[in3,on3] = inpolygon(x,y,xv3,yv3);
+% Só para deixar logo tudo junto
+
+
 % Essa função gera dois valores, in1 e on1, que são arrays booleanas que seguem o seguinte padrão:
 % in1 é 1 para todos os valores do espaço (x,y) dado que estiver dentro do poligono de vertices xv1 e yv1, e 0 caso contrário. Como uma área hachurada
 % on1 é a borda do polígono. Como um perímetro.
@@ -186,10 +199,27 @@ for k=1:size(p,1)
 end
 
 
+% agora que temos os campos
+% Como pela geometria do problema os campos ficarão sempre na mesma direção da superfície podemos tirar o valor absoluto.
+Sigma = 0;
+for k=1:size(on3,1)
+    [i,j]=ind2sub(size(x),find(on3)(k));
+    if(i==ring3(1,1)|i==ring3(3,1))
+      Sigma += abs(campoEy(i,j))*dy;
+    end
+    if(j==ring3(1,2)|j==ring3(3,2))
+      Sigma += abs(campoEx(i,j))*dx;
+    end
+end
+% Atenção às unidades
+I = sigma*1*Sigma/1000; % [sigma] = (kohm*m)^-1, 1 m ,[Sigma] = Volts % [I] = A
+R = (Vmax-Vmin)/I; % ohm
+Cap =  (1e15*eps0*epsr)/(R*sigma); % [C] = Farad
 
-% ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-% até aqui conseguiremos calcular a Resistência e a capacitância.
-
+% dx=.5 ->    I = 50.69
+% dx=.25 ->   I =  0.76
+% dx=.125 ->  I =  3.42
+% dx=.0625 -> I =  0.00
 
 
 
@@ -270,7 +300,7 @@ while(erro2 > 1e-3 && iter2 < 1e4)% Executa ate convergir ou atingir o maximo de
         Dual_new(i,j)=(Dual_new(i-1,j)+Dual_new(i+1,j)+Dual_new(i,j-1)+Dual_new(i,j+1))/4;
     end
 
-% Cantos não-gregorianos
+% Cantos não-gregorianos (efeito das pontas)
 
     Dual_new(ieb,jeb)=(Dual_new(ieb-1,jeb)+Dual_new(ieb+1,jeb)+Dual_new(ieb,jeb-1)+Dual_new(ieb,jeb+1))/4;
     Dual_new(iea,jea)=(Dual_new(iea-1,jea)+Dual_new(iea+1,jea)+Dual_new(iea,jea-1)+Dual_new(iea,jea+1))/4;
@@ -293,49 +323,51 @@ end
 
 %      CORRENTE TOTAL (A)
 Somat=sum(Phi_new(2,:))+sum(Phi_new(Ny-1,:))+sum(Phi_new(:,2))+sum(Phi_new(:,Nx-1));
-I=  [Preencher Aqui][Preencher Aqui]???  ;
+
+I = I;
 
 %       RESISTENCIA em ohms
-R=  [Preencher Aqui]???????     ;
+R=  R;
 
 %        CAPACITANCIA em pF
-Cap=  [Preencher Aqui]????????????????? ;
+Cap=  Cap;
 
 %     RESISTENCIA DUAL em ohms
-Rdual=  [Preencher Aqui]????????????????  ;
+%Rdual=  [Preencher Aqui]????????????????  ;
 
 %    VETOR DESLOCAMENTO
 Dn=[Phi_new(2,1:Nx-1),Phi_new(1:Ny-1,Nx-1)',Phi_new(Ny-1,1:Nx-1),Phi_new(1:Ny-1,2)']*epsr*eps0/dx*100;
 
 %   Densidade de carga mínima em nC/m^2
-Rho_s_min=  [Preencher Aqui]???????????????  ;
+%Rho_s_min=  ;
 
 %  Numero de tubos de corrente
-nsnp=    [Preencher Aqui][Preencher Aqui]???   ;
+nsnp= 19;
 % Correção
 ntubos=10/nsnp;
 
 %              IMPRESSAO DE RESULTADOS NO TERMINAL 
 %                  ATENCAO para as unidades:
 %          R e Rdual em ohms     Cap em pF    Rho_s  em nC/m^2
-fprintf('\n\n nUSP: %d\n R = %g ohms\n C = %g pF\n Rho_s_min = %g nC/m^2\n Rdual = %g ohms\n Tubos: %g\n', NUSP, R, Cap, Rho_s_min,Rdual,floor(ntubos) );
+%fprintf('\n\n nUSP: %d\n R = %g ohms\n C = %g pF\n Rho_s_min = %g nC/m^2\n Rdual = %g ohms\n Tubos: %g\n', NUSP, R, Cap, Rho_s_min,Rdual,floor(ntubos) );
+fprintf('\n\n nUSP: %d\n R = %g ohms\n C = %g pF\n', NUSP, R, Cap);
 FIG=figure (1);
 
 %           TRACADO DE EQUIPOTENCIAIS
 
 V=0:10:Vmax;
 colormap cool;
-[C,H]=contour(x,y, [Preencher Aqui]?  ,  ??????????????  );
+[C,H]=contour(x,y,Phi_new,V);
 clabel(C,V);
 axis('equal');
 hold on
 
 %   EQUIPOTENCIAIS PROBLEMA DUAL (para tracado dos quadrados curvilineos)
 
-deltaV=   [Preencher Aqui]???????????? ;
+deltaV=   10;
 V=0:deltaV:Vmax;
 colormap jet;
-contour(x,y, [Preencher Aqui]????????????   ,  [Preencher Aqui]? );
+contour(x,y,Dual_new , V );
 axis('equal');
 strusp=sprintf('%d',NUSP);
 titulo=['Mapa de Quadrados Curvilineos (EC1 2024) - ', strusp, ' - ', date()];
